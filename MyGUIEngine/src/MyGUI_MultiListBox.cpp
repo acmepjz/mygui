@@ -258,6 +258,12 @@ namespace MyGUI
 		eventListSelectAccept(this, BiIndexBase::convertToFace(_position));
 	}
 
+	void MultiListBox::notifyListMouseItemActivate(ListBox* _sender, size_t _position)
+	{
+		// наш евент
+		eventListMouseItemActivate(this, BiIndexBase::convertToFace(_position));
+	}
+
 	void MultiListBox::notifyListChangeFocus(ListBox* _sender, size_t _position)
 	{
 		for (VectorColumnInfo::iterator iter = mVectorColumnInfo.begin(); iter != mVectorColumnInfo.end(); ++iter)
@@ -270,7 +276,10 @@ namespace MyGUI
 					(*iter).list->_setItemFocus(_position, true);
 			}
 		}
-		mLastMouseFocusIndex = _position;
+		if (mLastMouseFocusIndex != _position) {
+			mLastMouseFocusIndex = _position;
+			eventListMouseItemFocus(this, BiIndexBase::convertToFace(_position));
+		}
 	}
 
 	void MultiListBox::notifyListChangeScrollPosition(ListBox* _sender, size_t _position)
@@ -701,6 +710,7 @@ namespace MyGUI
 		column.list->eventListMouseItemFocus += newDelegate(this, &MultiListBox::notifyListChangeFocus);
 		column.list->eventListChangeScroll += newDelegate(this, &MultiListBox::notifyListChangeScrollPosition);
 		column.list->eventListSelectAccept += newDelegate(this, &MultiListBox::notifyListSelectAccept);
+		column.list->eventListMouseItemActivate += newDelegate(this, &MultiListBox::notifyListMouseItemActivate);
 
 		if (mHeaderPlace != nullptr)
 			column.button = mHeaderPlace->createWidget<Button>(mSkinButton, IntCoord(), Align::Default);

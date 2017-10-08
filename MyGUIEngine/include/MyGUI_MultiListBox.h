@@ -285,6 +285,20 @@ namespace MyGUI
 		*/
 		EventPair<EventHandle_WidgetSizeT, EventHandle_MultiListPtrSizeT> eventListChangePosition;
 
+		/** Event : Item was selected by mouse.\n
+		signature : void method(MyGUI::MultiListBox* _sender, size_t _index)\n
+		@param _sender widget that called this event
+		@param _index index of selected item
+		*/
+		EventPair<EventHandle_WidgetSizeT, EventHandle_MultiListPtrSizeT> eventListMouseItemActivate;
+
+		/** Event : Mouse is over item.\n
+		signature : void method(MyGUI::MultiListBox* _sender, size_t _index)\n
+		@param _sender widget that called this event
+		@param _index of focused item
+		*/
+		EventPair<EventHandle_WidgetSizeT, EventHandle_MultiListPtrSizeT> eventListMouseItemFocus;
+
 		/** Event : Less than operator for sort multilist by columns.\n
 			signature : void method(MyGUI::MultiListBox* _sender, size_t _column, const MyGUI::UString& _firstItem, const MyGUI::UString& _secondItem, bool& _less)\n
 			@param _sender widget that called this event
@@ -327,6 +341,7 @@ namespace MyGUI
 		void notifyListChangeScrollPosition(ListBox* _sender, size_t _position);
 		void notifyButtonClick(Widget* _sender);
 		void notifyListSelectAccept(ListBox* _sender, size_t _position);
+		void notifyListMouseItemActivate(ListBox* _sender, size_t _position);
 
 		void updateColumns();
 		void redrawButtons();
