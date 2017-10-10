@@ -40,7 +40,7 @@ namespace MyGUI
 		mEndSelect(0),
 		mCursorPosition(0),
 		mVisibleCursor(false),
-		mInvertSelect(true),
+		mInvertSelect(FontManager::getInstance().getInvertSelected()),
 		mShadow(false),
 		mNode(nullptr),
 		mRenderItem(nullptr),
@@ -546,7 +546,7 @@ namespace MyGUI
 		// текущие цвета
 		uint32 colour = mCurrentColourNative;
 		uint32 inverseColour = mInverseColourNative;
-		uint32 selectedColour = mInvertSelect ? inverseColour : colour | 0x00FFFFFF;
+		uint32 selectedColour = mInvertSelect ? inverseColour : FontManager::getInstance().getSelectedColour();
 
 		const VectorLineInfo& textViewData = mTextView.getData();
 
@@ -568,7 +568,7 @@ namespace MyGUI
 				{
 					colour = sim->getColour() | (colour & 0xFF000000);
 					inverseColour = colour ^ 0x00FFFFFF;
-					selectedColour = mInvertSelect ? inverseColour : colour | 0x00FFFFFF;
+					selectedColour = mInvertSelect ? inverseColour : FontManager::getInstance().getSelectedColour();
 					continue;
 				}
 

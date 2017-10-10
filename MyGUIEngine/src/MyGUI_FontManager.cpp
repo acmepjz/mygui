@@ -7,6 +7,7 @@
 #include "MyGUI_Precompiled.h"
 #include "MyGUI_FontManager.h"
 #include "MyGUI_FactoryManager.h"
+#include "MyGUI_TextureUtility.h"
 #include "MyGUI_XmlDocument.h"
 
 #include "MyGUI_ResourceManualFont.h"
@@ -22,7 +23,9 @@ namespace MyGUI
 		mIsInitialise(false),
 		mXmlFontTagName("Font"),
 		mXmlPropertyTagName("Property"),
-		mXmlDefaultFontValue("Default")
+		mXmlDefaultFontValue("Default"),
+		mInvertSelect(true),
+		mSelectedColour(0xFFFFFFFF)
 	{
 	}
 
@@ -77,6 +80,10 @@ namespace MyGUI
 				if (key == "DefaultGenerated")
 #endif
 					mDefaultName = value;
+				else if (key == "InvertSelected")
+					mInvertSelect = utility::parseBool(value);
+				else if (key == "SelectedColour")
+					mSelectedColour = texture_utility::toColourARGB(utility::parseValue<Colour>(value));
 			}
 		}
 	}

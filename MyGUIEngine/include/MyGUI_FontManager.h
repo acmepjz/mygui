@@ -40,11 +40,29 @@ namespace MyGUI
 		/** Get font resource */
 		IFont* getByName(const std::string& _name) const;
 
+		/** Get invert selected text color property. */
+		bool getInvertSelected() const { return mInvertSelect; }
+
+		/** Enable or disable inverting color of selected text.\n
+		Enabled (true) by default.
+		*/
+		void setInvertSelected(bool _value) { mInvertSelect = _value; }
+
+		/** Get the global selected text color (used when getInvertSelected() == false). */
+		uint32 getSelectedColour() const { return mSelectedColour; }
+
+		/** Set the global selected text color (used when getInvertSelected() == false).\n
+		Default value is 0xFFFFFFFF (white).
+		*/
+		void setSelectedColour(uint32 _value) { mSelectedColour = _value; }
+
 	private:
 		void _load(xml::ElementPtr _node, const std::string& _file, Version _version);
 
 	private:
 		std::string mDefaultName;
+		bool mInvertSelect;
+		uint32 mSelectedColour;
 
 		bool mIsInitialise;
 		std::string mXmlFontTagName;
