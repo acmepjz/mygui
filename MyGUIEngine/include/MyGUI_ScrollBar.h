@@ -68,10 +68,12 @@ namespace MyGUI
 		/** Get size in pixels of area where scroll moves */
 		int getLineSize() const;
 
+	private:
 		/** Set size of track in pixels
 			@param _value in pixels, if less than MinTrackSize, MinTrackSize used
 		*/
 		void setTrackSize(int _value);
+	public:
 		/** Get size of track in pixels */
 		int getTrackSize() const;
 

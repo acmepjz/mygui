@@ -135,7 +135,7 @@ namespace MyGUI
 		if (mVerticalAlignment)
 		{
 			// скрываем если диапазан маленький или места мало
-			if ((mScrollRange < 2) || (pos <= mWidgetTrack->getHeight()))
+			if ((mScrollRange < 2) || (pos <= mMinTrackSize))
 			{
 				mWidgetTrack->setVisible(false);
 				if (nullptr != mWidgetFirstPart)
@@ -144,12 +144,15 @@ namespace MyGUI
 					mWidgetSecondPart->setCoord(mWidgetSecondPart->getLeft(), pos / 2 + (int)mSkinRangeStart, mWidgetSecondPart->getWidth(), pos - pos / 2);
 				return;
 			}
+
+			setTrackSize((int)((float)pos / (mScrollRange - 1 + mScrollViewPage) * mScrollViewPage + 0.5f));
+
 			// если скрыт то покажем
 			if (!mWidgetTrack->getVisible())
 				mWidgetTrack->setVisible(true);
 
 			// и обновляем позицию
-			pos = (int)(((size_t)(pos - getTrackSize()) * mScrollPosition) / (mScrollRange - 1) + mSkinRangeStart);
+			pos = (int)(((float)(pos - getTrackSize()) * mScrollPosition) / (mScrollRange - 1) + mSkinRangeStart + 0.5f);
 
 			mWidgetTrack->setPosition(mWidgetTrack->getLeft(), pos);
 			if (nullptr != mWidgetFirstPart)
@@ -167,7 +170,7 @@ namespace MyGUI
 		else
 		{
 			// скрываем если диапазан маленький или места мало
-			if ((mScrollRange < 2) || (pos <= mWidgetTrack->getWidth()))
+			if ((mScrollRange < 2) || (pos <= mMinTrackSize))
 			{
 				mWidgetTrack->setVisible(false);
 				if (nullptr != mWidgetFirstPart)
@@ -176,12 +179,15 @@ namespace MyGUI
 					mWidgetSecondPart->setCoord(pos / 2 + (int)mSkinRangeStart, mWidgetSecondPart->getTop(), pos - pos / 2, mWidgetSecondPart->getHeight());
 				return;
 			}
+
+			setTrackSize((int)((float)pos / (mScrollRange - 1 + mScrollViewPage) * mScrollViewPage + 0.5f));
+
 			// если скрыт то покажем
 			if (!mWidgetTrack->getVisible())
 				mWidgetTrack->setVisible(true);
 
 			// и обновляем позицию
-			pos = (int)(((size_t)(pos - getTrackSize()) * mScrollPosition) / (mScrollRange - 1) + mSkinRangeStart);
+			pos = (int)(((float)(pos - getTrackSize()) * mScrollPosition) / (mScrollRange - 1) + mSkinRangeStart + 0.5f);
 
 			mWidgetTrack->setPosition(pos, mWidgetTrack->getTop());
 			if (nullptr != mWidgetFirstPart)
@@ -387,7 +393,6 @@ namespace MyGUI
 			else
 				mWidgetTrack->setSize(((int)_size < (int)mMinTrackSize) ? (int)mMinTrackSize : (int)_size, mWidgetTrack->getHeight());
 		}
-		updateTrack();
 	}
 
 	void ScrollBar::setRepeatTriggerTime(float time)
@@ -623,6 +628,7 @@ namespace MyGUI
 	void ScrollBar::setScrollViewPage(size_t _value)
 	{
 		mScrollViewPage = _value;
+		updateTrack();
 	}
 
 	size_t ScrollBar::getScrollViewPage() const

@@ -299,8 +299,6 @@ namespace MyGUI
 
 		mWidgetScroll->setScrollRange(mRangeIndex + 1);
 		mWidgetScroll->setScrollViewPage(_getClientWidget()->getHeight());
-		if (!mItemsInfo.empty())
-			mWidgetScroll->setTrackSize(mWidgetScroll->getLineSize() * _getClientWidget()->getHeight() / mHeightLine / (int)mItemsInfo.size());
 	}
 
 	void ListBox::updateLine(bool _reset)
@@ -513,8 +511,6 @@ namespace MyGUI
 			if (mWidgetScroll != nullptr)
 			{
 				mWidgetScroll->setScrollRange(mWidgetScroll->getScrollRange() + mHeightLine);
-				if (!mItemsInfo.empty())
-					mWidgetScroll->setTrackSize( mWidgetScroll->getLineSize() * _getClientWidget()->getHeight() / mHeightLine / (int)mItemsInfo.size() );
 				mWidgetScroll->setScrollPosition(mTopIndex * mHeightLine + mOffsetTop);
 			}
 			mRangeIndex += mHeightLine;
@@ -531,8 +527,6 @@ namespace MyGUI
 				if (mWidgetScroll != nullptr)
 				{
 					mWidgetScroll->setScrollRange(mWidgetScroll->getScrollRange() + mHeightLine);
-					if (!mItemsInfo.empty())
-						mWidgetScroll->setTrackSize( mWidgetScroll->getLineSize() * _getClientWidget()->getHeight() / mHeightLine / (int)mItemsInfo.size() );
 					mWidgetScroll->setScrollPosition(mTopIndex * mHeightLine + mOffsetTop);
 				}
 				mRangeIndex += mHeightLine;
@@ -585,8 +579,6 @@ namespace MyGUI
 			if (mWidgetScroll != nullptr)
 			{
 				mWidgetScroll->setScrollRange(mWidgetScroll->getScrollRange() - mHeightLine);
-				if (!mItemsInfo.empty())
-					mWidgetScroll->setTrackSize( mWidgetScroll->getLineSize() * _getClientWidget()->getHeight() / mHeightLine / (int)mItemsInfo.size() );
 				mWidgetScroll->setScrollPosition(mTopIndex * mHeightLine + mOffsetTop);
 			}
 			mRangeIndex -= mHeightLine;
@@ -603,8 +595,6 @@ namespace MyGUI
 				if (mWidgetScroll != nullptr)
 				{
 					mWidgetScroll->setScrollRange(mWidgetScroll->getScrollRange() - mHeightLine);
-					if (!mItemsInfo.empty())
-						mWidgetScroll->setTrackSize( mWidgetScroll->getLineSize() * _getClientWidget()->getHeight() / mHeightLine / (int)mItemsInfo.size() );
 					mWidgetScroll->setScrollPosition(mTopIndex * mHeightLine + mOffsetTop);
 				}
 				mRangeIndex -= mHeightLine;
