@@ -30,6 +30,7 @@ namespace MyGUI
 		mResizeToContent(true),
 		mShutdown(false),
 		mVerticalAlignment(true),
+		mManualSkin(false),
 		mDistanceButton(0),
 		mPopupAccept(false),
 		mOwner(nullptr),
@@ -295,11 +296,26 @@ namespace MyGUI
 		info.type = _type;
 
 		// при смене скина дите отпишется
-		mChangeChildSkin = true;
-		info.item->changeWidgetSkin(getSkinByType(_type));
-		mChangeChildSkin = false;
+		if (!mManualSkin) {
+			mChangeChildSkin = true;
+			info.item->changeWidgetSkin(getSkinByType(_type));
+			mChangeChildSkin = false;
+		}
 
 		info.item->setImageName(getIconIndexByType(_type ));
+		info.item->setCaption(info.name);
+
+		update();
+	}
+
+	void MenuControl::changeItemSkinAt(size_t _index, const std::string& _skinName) {
+		MYGUI_ASSERT_RANGE(_index, mItemsInfo.size(), "MenuControl::changeItemSkinAt");
+		ItemInfo& info = mItemsInfo[_index];
+
+		mChangeChildSkin = true;
+		info.item->changeWidgetSkin(_skinName);
+		mChangeChildSkin = false;
+
 		info.item->setCaption(info.name);
 
 		update();
@@ -513,9 +529,11 @@ namespace MyGUI
 
 		mItemsInfo.insert(mItemsInfo.begin() + _index, info);
 
-		mChangeChildSkin = true;
-		_item->changeWidgetSkin(getSkinByType(_type));
-		mChangeChildSkin = false;
+		if (!mManualSkin) {
+			mChangeChildSkin = true;
+			_item->changeWidgetSkin(getSkinByType(_type));
+			mChangeChildSkin = false;
+		}
 
 		// его сет капшен, обновит размер
 		_item->setCaption(_name);
@@ -883,6 +901,9 @@ namespace MyGUI
 		/// @wproperty{MenuControl, VerticalAlignment, bool} Вертикальное выравнивание.
 		if (_key == "VerticalAlignment")
 			setVerticalAlignment(utility::parseValue<bool>(_value));
+
+		else if (_key == "ManualSkin")
+			setManualSkin(utility::parseValue<bool>(_value));
 
 		else
 		{

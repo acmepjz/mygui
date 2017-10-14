@@ -223,6 +223,9 @@ namespace MyGUI
 		/** Set item type (see MenuItemType) from item */
 		void setItemType(MenuItem* _item, MenuItemType _type);
 
+		void changeItemSkinAt(size_t _index, const std::string& _skinName);
+		void changeItemSkin(MenuItem* _item, const std::string& _skinName) { changeItemSkinAt(getItemIndex(_item), _skinName); }
+
 		/** Set mode when clicking on item with submenu generate eventMenuCtrlAccept and closes menu */
 		void setPopupAccept(bool _value);
 		/** Get mode when clicking on item with submenu generate eventMenuCtrlAccept and closes menu */
@@ -236,6 +239,8 @@ namespace MyGUI
 		/** Get vertical alignment mode flag */
 		bool getVerticalAlignment() const;
 
+		void setManualSkin(bool _value) { mManualSkin = _value; }
+		bool getManualSkin() const { return mManualSkin; }
 
 		/*events:*/
 		/** Event : Enter pressed or mouse clicked.\n
@@ -324,6 +329,7 @@ namespace MyGUI
 		bool mShutdown;
 
 		bool mVerticalAlignment;
+		bool mManualSkin;
 		int mDistanceButton;
 		bool mPopupAccept;
 		MenuItem* mOwner;
