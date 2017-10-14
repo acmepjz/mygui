@@ -43,6 +43,49 @@ namespace MyGUI
 						else if (tag == "&gt;") ret += '>';
 						else if (tag == "&apos;") ret += '\'';
 						else if (tag == "&quot;") ret += '\"';
+						else if (tag[1] == '#')
+						{
+							int ch = 0;
+							if (tag[2] == 'X' || tag[2] == 'x') {
+								for (int i = 3, m = tag.size() - 1; i < m; i++) {
+									char c = tag[i];
+									if (c >= '0' && c <= '9') ch = (ch << 4) + (c - '0');
+									else if (c >= 'A' && c <= 'F') ch = (ch << 4) + (c + 10 - 'A');
+									else if (c >= 'a' && c <= 'f') ch = (ch << 4) + (c + 10 - 'a');
+									else {
+										_ok = false;
+										return ret;
+									}
+								}
+							} else {
+								for (int i = 2, m = tag.size() - 1; i < m; i++) {
+									char c = tag[i];
+									if (c >= '0' && c <= '9') ch = ch * 10 + (c - '0');
+									else {
+										_ok = false;
+										return ret;
+									}
+								}
+							}
+							if (ch <= 0 || ch >= 0x110000) {
+								_ok = false;
+								return ret;
+							} if (ch < 0x80) {
+								ret.push_back(ch);
+							} else if (ch < 0x800) {
+								ret.push_back(0xC0 | (ch >> 6));
+								ret.push_back(0x80 | (ch & 0x3F));
+							} else if (ch < 0x10000) {
+								ret.push_back(0xE0 | (ch >> 12));
+								ret.push_back(0x80 | ((ch >> 6) & 0x3F));
+								ret.push_back(0x80 | (ch & 0x3F));
+							} else {
+								ret.push_back(0xF0 | (ch >> 18));
+								ret.push_back(0x80 | ((ch >> 12) & 0x3F));
+								ret.push_back(0x80 | ((ch >> 6) & 0x3F));
+								ret.push_back(0x80 | (ch & 0x3F));
+							}
+						}
 						else
 						{
 							_ok = false;
