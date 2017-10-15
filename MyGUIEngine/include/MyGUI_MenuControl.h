@@ -285,6 +285,9 @@ namespace MyGUI
 
 		virtual void setPropertyOverride(const std::string& _key, const std::string& _value);
 
+		void frameEntered(float _frame);
+		void frameAdvise(bool _advise);
+
 	private:
 		void notifyRootKeyChangeFocus(Widget* _sender, bool _focus);
 		void notifyMouseButtonClick(Widget* _sender);
@@ -327,6 +330,7 @@ namespace MyGUI
 
 		// флаг, чтобы отсеч уведомления от айтемов, при общем шутдауне виджета
 		bool mShutdown;
+		bool mFrameAdvise;
 
 		bool mVerticalAlignment;
 		bool mManualSkin;

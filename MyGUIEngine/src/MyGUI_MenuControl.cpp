@@ -29,6 +29,7 @@ namespace MyGUI
 		mHideByLostKey(false),
 		mResizeToContent(true),
 		mShutdown(false),
+		mFrameAdvise(false),
 		mVerticalAlignment(true),
 		mManualSkin(false),
 		mDistanceButton(0),
@@ -159,6 +160,17 @@ namespace MyGUI
 
 	void MenuControl::update()
 	{
+		for (VectorMenuItemInfo::iterator iter = mItemsInfo.begin(); iter != mItemsInfo.end(); ++iter)
+		{
+			if (iter->width < 0) {
+				MenuItem* _item = iter->item;
+				ISubWidgetText* text = _item->getSubWidgetText();
+				int width = text ? (text->getTextSize().width + _item->getSize().width - text->getWidth()) : 0;
+				if (width < 0) width = 0;
+				iter->width = width;
+			}
+		}
+
 		IntSize size;
 
 		if (mVerticalAlignment)
@@ -222,7 +234,7 @@ namespace MyGUI
 			mItemsInfo[_index].submenu = nullptr;
 		}
 
-		update();
+		frameAdvise(true);
 	}
 
 	void MenuControl::setItemNameAt(size_t _index, const UString& _name)
@@ -233,7 +245,7 @@ namespace MyGUI
 		MenuItem* item = mItemsInfo[_index].item;
 		item->setCaption(_name);
 
-		update();
+		frameAdvise(true);
 	}
 
 	void MenuControl::setItemIdAt(size_t _index, const std::string& _id)
@@ -260,7 +272,7 @@ namespace MyGUI
 
 		size_t index = getItemIndex(_item);
 		mItemsInfo.erase(mItemsInfo.begin() + index);
-		update();
+		frameAdvise(true);
 	}
 
 	void MenuControl::_notifyDeletePopup(MenuItem* _item)
@@ -274,9 +286,8 @@ namespace MyGUI
 		size_t index = getItemIndex(_item);
 		mItemsInfo[index].name = _item->getCaption();
 
-		ISubWidgetText* text = _item->getSubWidgetText();
-		mItemsInfo[index].width = text ? (text->getTextSize().width + _item->getSize().width - text->getWidth()) : 0;
-		update();
+		mItemsInfo[index].width = -1;
+		frameAdvise(true);
 	}
 
 	MenuItemType MenuControl::getItemTypeAt(size_t _index)
@@ -305,7 +316,7 @@ namespace MyGUI
 		info.item->setImageName(getIconIndexByType(_type ));
 		info.item->setCaption(info.name);
 
-		update();
+		frameAdvise(true);
 	}
 
 	void MenuControl::changeItemSkinAt(size_t _index, const std::string& _skinName) {
@@ -318,7 +329,7 @@ namespace MyGUI
 
 		info.item->setCaption(info.name);
 
-		update();
+		frameAdvise(true);
 	}
 
 	void MenuControl::notifyMenuCtrlAccept(MenuItem* _item)
@@ -511,7 +522,7 @@ namespace MyGUI
 		// скрываем менюшку
 		mItemsInfo[index].submenu->setVisible(false);
 
-		update();
+		frameAdvise(true);
 	}
 
 	void MenuControl::_wrapItem(MenuItem* _item, size_t _index, const UString& _name, MenuItemType _type, const std::string& _id, Any _data)
@@ -538,7 +549,7 @@ namespace MyGUI
 		// его сет капшен, обновит размер
 		_item->setCaption(_name);
 
-		update();
+		frameAdvise(true);
 	}
 
 	void MenuControl::setVisible(bool _visible)
@@ -888,7 +899,7 @@ namespace MyGUI
 	{
 		mVerticalAlignment = _value;
 
-		update();
+		frameAdvise(true);
 	}
 
 	bool MenuControl::getVerticalAlignment() const
@@ -912,6 +923,28 @@ namespace MyGUI
 		}
 
 		eventChangeProperty(this, _key, _value);
+	}
+
+	void MenuControl::frameEntered(float _frame)
+	{
+		update();
+
+		frameAdvise(false);
+	}
+
+	void MenuControl::frameAdvise(bool _advise)
+	{
+		if (_advise) {
+			if (!mFrameAdvise) {
+				MyGUI::Gui::getInstance().eventFrameStart += MyGUI::newDelegate(this, &MenuControl::frameEntered);
+				mFrameAdvise = true;
+			}
+		} else {
+			if (mFrameAdvise) {
+				MyGUI::Gui::getInstance().eventFrameStart -= MyGUI::newDelegate(this, &MenuControl::frameEntered);
+				mFrameAdvise = false;
+			}
+		}
 	}
 
 } // namespace MyGUI
