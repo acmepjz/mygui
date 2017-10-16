@@ -39,26 +39,20 @@ namespace MyGUI
 
 		struct ItemInfo
 		{
-			ItemInfo(MenuItem* _item, const UString& _name, MenuItemType _type, MenuControl* _submenu, const std::string& _id, Any _data) :
+			ItemInfo(MenuItem* _item, MenuItemType _type, MenuControl* _submenu, Any _data) :
 				item(_item),
-				name(_name),
 				type(_type),
 				submenu(_submenu),
-				id(_id),
 				data(_data)
 			{
 			}
 
 			/** Item */
 			MenuItem* item;
-			/** Item name*/
-			UString name;
 			/** Widget have separator after item */
 			MenuItemType type;
 			/** Sub menu (or nullptr if no submenu) */
 			MenuControl* submenu;
-			/** Item id*/
-			std::string id;
 			/** User data */
 			Any data;
 		};
@@ -79,12 +73,16 @@ namespace MyGUI
 		size_t getItemCount() const;
 
 		//! Insert an item into a array at a specified position
-		MenuItem* insertItemAt(size_t _index, const UString& _name, MenuItemType _type = MenuItemType::Normal, const std::string& _id = "", Any _data = Any::Null);
+		MenuItem* insertItemAt(size_t _index, const UString& _caption, MenuItemType _type = MenuItemType::Normal, const std::string& _name = "", Any _data = Any::Null);
 		//! Insert an item into a array
-		MenuItem* insertItem(MenuItem* _to, const UString& _name, MenuItemType _type = MenuItemType::Normal, const std::string& _id = "", Any _data = Any::Null);
+		MenuItem* insertItem(MenuItem* _to, const UString& _caption, MenuItemType _type = MenuItemType::Normal, const std::string& _name = "", Any _data = Any::Null) {
+			return insertItemAt(getItemIndex(_to), _caption, _type, _name, _data);
+		}
 
 		//! Add an item to the end of a array
-		MenuItem* addItem(const UString& _name, MenuItemType _type = MenuItemType::Normal, const std::string& _id = "", Any _data = Any::Null);
+		MenuItem* addItem(const UString& _caption, MenuItemType _type = MenuItemType::Normal, const std::string& _name = "", Any _data = Any::Null) {
+			return insertItemAt(ITEM_NONE, _caption, _type, _name, _data);
+		}
 
 		//! Remove item at a specified position
 		void removeItemAt(size_t _index);
@@ -103,9 +101,6 @@ namespace MyGUI
 
 		//! Search item, returns the position of the first occurrence in array or ITEM_NONE if item not found
 		size_t findItemIndex(MenuItem* _item);
-
-		//! Search item, returns the item of the first occurrence in array or nullptr if item not found
-		MenuItem* findItemWith(const UString& _name);
 
 		//------------------------------------------------------------------------------//
 		// манипуляции данными
@@ -134,39 +129,18 @@ namespace MyGUI
 			return getItemDataAt<ValueType>(getItemIndex(_item), _throw);
 		}
 
-		//! Replace an item id at a specified position
-		void setItemIdAt(size_t _index, const std::string& _id);
-		//! Replace an item id
-		void setItemId(MenuItem* _item, const std::string& _id);
-
-		//! Get item id from specified position
-		const std::string& getItemIdAt(size_t _index);
-		//! Get item id
-		const std::string& getItemId(MenuItem* _item);
-
-		/** Get item by id */
-		MenuItem* getItemById(const std::string& _id);
-
-		/** Find item by id */
-		MenuItem* findItemById(const std::string& _id, bool _recursive = false);
-
-		/** Get item index by id */
-		size_t getItemIndexById(const std::string& _id);
 		//------------------------------------------------------------------------------//
 		// манипуляции отображением
 
 		//! Replace an item name at a specified position
-		void setItemNameAt(size_t _index, const UString& _name);
+		void setItemCaptionAt(size_t _index, const UString& _caption);
 		//! Replace an item name
-		void setItemName(MenuItem* _item, const UString& _name);
+		void setItemCaption(MenuItem* _item, const UString& _caption);
 
 		//! Get item from specified position
-		const UString& getItemNameAt(size_t _index);
+		const UString& getItemCaptionAt(size_t _index);
 		//! Get item from specified position
-		const UString& getItemName(MenuItem* _item);
-
-		//! Search item, returns the position of the first occurrence in array or ITEM_NONE if item not found
-		size_t findItemIndexWith(const UString& _name);
+		const UString& getItemCaption(MenuItem* _item);
 
 		/** Show or hide item (submenu) at a specified position */
 		void setItemChildVisibleAt(size_t _index, bool _visible);
@@ -257,7 +231,7 @@ namespace MyGUI
 		/*internal:*/
 		void _notifyDeleteItem(MenuItem* _item);
 		void _notifyDeletePopup(MenuItem* _item);
-		void _notifyUpdateName(MenuItem* _item);
+		void _notifyUpdateCaption(MenuItem* _item);
 		void _wrapItemChild(MenuItem* _item, MenuControl* _widget);
 
 		// IItemContainer impl
@@ -265,8 +239,6 @@ namespace MyGUI
 		virtual void _addItem(const MyGUI::UString& _name);
 		virtual void _removeItemAt(size_t _index);
 		virtual Widget* _getItemAt(size_t _index);
-		virtual void _setItemNameAt(size_t _index, const UString& _name);
-		virtual const UString& _getItemNameAt(size_t _index);
 		virtual void _setItemSelected(IItem* _item);
 
 		void _updateItems(size_t _index);
@@ -301,7 +273,7 @@ namespace MyGUI
 
 		Widget* createItemChildByType(size_t _index, const std::string& _type);
 
-		void _wrapItem(MenuItem* _item, size_t _index, const UString& _name, MenuItemType _type, const std::string& _id, Any _data);
+		void _wrapItem(MenuItem* _item, size_t _index, MenuItemType _type, Any _data);
 
 		ControllerFadeAlpha* createControllerFadeAlpha(float _alpha, float _coef, bool _enable);
 

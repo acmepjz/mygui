@@ -28,18 +28,18 @@ namespace MyGUI
 	public:
 		MenuItem();
 
+		/** Set widget caption */
+		virtual void setCaption(const UString& _value);
+		/** Get widget caption */
+		virtual const UString& getCaption();
+
 		/** @copydoc TextBox::setFontName(const std::string& _value) */
 		virtual void setFontName(const std::string& _value);
 
 		/** @copydoc TextBox::setFontHeight(int _value) */
 		virtual void setFontHeight(int _value);
 
-		//! Replace an item name
-		void setItemName(const UString& _value);
-		//! Get item name
-		const UString& getItemName();
-
-		void _setItemName(const UString& _value);
+		void _updateCaption();
 
 		//! Replace an item name
 		void setItemData(Any _value);
@@ -53,11 +53,6 @@ namespace MyGUI
 
 		//! Remove item
 		void removeItem();
-
-		//! Replace an item id at a specified position
-		void setItemId(const std::string& _value);
-		//! Get item id from specified position
-		const std::string& getItemId();
 
 		//! Get item index
 		size_t getItemIndex();
@@ -92,8 +87,8 @@ namespace MyGUI
 		/*internal:*/
 		virtual IItemContainer* _getItemContainer();
 
-		void getTextSize2(std::vector<IntSize>& _size, IntSize& _size2);
-		void setTextSize2(const std::vector<IntSize>& _size);
+		void _getTextSize2(std::vector<IntSize>& _size, IntSize& _size2);
+		void _setTextSize2(const std::vector<IntSize>& _size);
 
 	protected:
 		virtual void initialiseOverride();
@@ -112,6 +107,7 @@ namespace MyGUI
 		Widget* mCheck;
 		bool mCheckValue;
 
+		UString mCaption;
 		std::string mTextBoxSkin;
 		VectorWidgetPtr mTextBox;
 	};

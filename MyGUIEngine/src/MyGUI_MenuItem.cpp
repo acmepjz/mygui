@@ -75,7 +75,17 @@ namespace MyGUI
 		}
 	}
 
-	void MenuItem::_setItemName(const UString& _value)
+	void MenuItem::setCaption(const UString& _value) {
+		mCaption = _value;
+		_updateCaption();
+		mOwner->_notifyUpdateCaption(this);
+	}
+
+	const UString& MenuItem::getCaption() {
+		return mCaption;
+	}
+
+	void MenuItem::_updateCaption()
 	{
 		if (!mTextBox.empty()) {
 			WidgetManager::getInstance().destroyWidgets(mTextBox);
@@ -83,12 +93,12 @@ namespace MyGUI
 		}
 
 		if (mTextBoxSkin.empty()) {
-			Button::setCaption(_value);
+			Button::setCaption(mCaption);
 		} else {
 			size_t lps = 0;
 			for (int i = -1;; i++) {
-				size_t lpe = _value.find_first_of(UString::unicode_char('\t'), lps);
-				UString s = _value.substr(lps, lpe == UString::npos ? UString::npos : (lpe - lps));
+				size_t lpe = mCaption.find_first_of(UString::unicode_char('\t'), lps);
+				UString s = mCaption.substr(lps, lpe == UString::npos ? UString::npos : (lpe - lps));
 
 				if (i >= 0) {
 					TextBox *textBox = createWidgetT("TextBox", mTextBoxSkin, IntCoord(), Align::Default)->castType<TextBox>();
@@ -107,7 +117,7 @@ namespace MyGUI
 		}
 	}
 
-	void MenuItem::getTextSize2(std::vector<IntSize>& _size, IntSize& _size2) {
+	void MenuItem::_getTextSize2(std::vector<IntSize>& _size, IntSize& _size2) {
 		_size.clear();
 
 		ISubWidgetText *text = getSubWidgetText();
@@ -138,7 +148,7 @@ namespace MyGUI
 		}
 	}
 
-	void MenuItem::setTextSize2(const std::vector<IntSize>& _size) {
+	void MenuItem::_setTextSize2(const std::vector<IntSize>& _size) {
 		if (_size.empty()) return;
 
 		int x = _size[0].width;
@@ -159,7 +169,7 @@ namespace MyGUI
 			mTextBox[i]->castType<TextBox>()->setFontName(_value);
 		}
 
-		mOwner->_notifyUpdateName(this);
+		mOwner->_notifyUpdateCaption(this);
 	}
 
 	void MenuItem::setFontHeight(int _value)
@@ -170,17 +180,7 @@ namespace MyGUI
 			mTextBox[i]->castType<TextBox>()->setFontHeight(_value);
 		}
 
-		mOwner->_notifyUpdateName(this);
-	}
-
-	const UString& MenuItem::getItemName()
-	{
-		return mOwner->getItemName(this);
-	}
-
-	void MenuItem::setItemName(const UString& _value)
-	{
-		mOwner->setItemName(this, _value);
+		mOwner->_notifyUpdateCaption(this);
 	}
 
 	void MenuItem::setItemData(Any _data)
@@ -191,16 +191,6 @@ namespace MyGUI
 	void MenuItem::removeItem()
 	{
 		mOwner->removeItem(this);
-	}
-
-	void MenuItem::setItemId(const std::string& _id)
-	{
-		mOwner->setItemId(this, _id);
-	}
-
-	const std::string& MenuItem::getItemId()
-	{
-		return mOwner->getItemId(this);
 	}
 
 	size_t MenuItem::getItemIndex()
@@ -235,20 +225,13 @@ namespace MyGUI
 
 	void MenuItem::setPropertyOverride(const std::string& _key, const std::string& _value)
 	{
-		/// @wproperty{MenuItem, MenuItemId, string} Идентификатор строки меню.
-		if (_key == "MenuItemId")
-			setItemId(_value);
-
 		/// @wproperty{MenuItem, MenuItemType, MenuItemType} Тип строки меню.
-		else if (_key == "MenuItemType")
+		if (_key == "MenuItemType")
 			setItemType(utility::parseValue<MenuItemType>(_value));
 
 		/// @wproperty{MenuItem, MenuItemChecked, bool} Отмеченное состояние строки меню.
 		else if (_key == "MenuItemChecked")
 			setItemChecked(utility::parseValue<bool>(_value));
-
-		else if (_key == "Caption")
-			setItemName(_value);
 
 		else
 		{

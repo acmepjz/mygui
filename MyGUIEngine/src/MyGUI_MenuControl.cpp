@@ -110,19 +110,20 @@ namespace MyGUI
 		MenuItem* child = _widget->castType<MenuItem>(false);
 		if (child != nullptr && !mInternalCreateChild)
 		{
-			_wrapItem(child, mItemsInfo.size(), "", MenuItemType::Normal, "", Any::Null);
+			_wrapItem(child, mItemsInfo.size(), MenuItemType::Normal, Any::Null);
 		}
 	}
 
-	MenuItem* MenuControl::insertItemAt(size_t _index, const UString& _name, MenuItemType _type, const std::string& _id, Any _data)
+	MenuItem* MenuControl::insertItemAt(size_t _index, const UString& _caption, MenuItemType _type, const std::string& _name, Any _data)
 	{
 		MYGUI_ASSERT_RANGE_INSERT(_index, mItemsInfo.size(), "MenuControl::insertItemAt");
 		if (_index == ITEM_NONE) _index = mItemsInfo.size();
 
 		mInternalCreateChild = true;
-		MenuItem* item = _getClientWidget()->createWidget<MenuItem>(getSkinByType(_type), IntCoord(), Align::Default);
+		MenuItem* item = _getClientWidget()->createWidget<MenuItem>(getSkinByType(_type), IntCoord(), Align::Default, _name);
+		item->setCaption(_caption);
 		mInternalCreateChild = false;
-		_wrapItem(item, _index, _name, _type, _id, _data);
+		_wrapItem(item, _index, _type, _data);
 
 		return item;
 	}
@@ -152,12 +153,6 @@ namespace MyGUI
 		}
 	}
 
-	const UString& MenuControl::getItemNameAt(size_t _index)
-	{
-		MYGUI_ASSERT_RANGE(_index, mItemsInfo.size(), "MenuControl::getItemNameAt");
-		return mItemsInfo[_index].name;
-	}
-
 	void MenuControl::update()
 	{
 		IntSize size;
@@ -174,7 +169,7 @@ namespace MyGUI
 				std::vector<IntSize> sz1;
 				IntSize sz2;
 
-				mItemsInfo[i].item->getTextSize2(sz1, sz2);
+				mItemsInfo[i].item->_getTextSize2(sz1, sz2);
 
 				int height = sz2.height;
 				for (size_t j = 0; j < sz1.size(); j++) {
@@ -201,7 +196,7 @@ namespace MyGUI
 				mItemsInfo[i].item->setCoord(0, size.height, _getClientWidget()->getWidth(), height);
 				size.height += height + mDistanceButton;
 
-				mItemsInfo[i].item->setTextSize2(sz1m);
+				mItemsInfo[i].item->_setTextSize2(sz1m);
 			}
 
 			if (!mItemsInfo.empty())
@@ -221,7 +216,7 @@ namespace MyGUI
 				std::vector<IntSize> &sz1 = sz1m.back();
 				IntSize &sz2 = sz2m.back();
 
-				mItemsInfo[i].item->getTextSize2(sz1, sz2);
+				mItemsInfo[i].item->_getTextSize2(sz1, sz2);
 
 				if (size.height < sz2.height) size.height = sz2.height;
 				for (size_t j = 0; j < sz1.size(); j++) {
@@ -241,7 +236,7 @@ namespace MyGUI
 				mItemsInfo[i].item->setCoord(size.width, 0, width, size.height);
 				size.width += width + mDistanceButton;
 
-				mItemsInfo[i].item->setTextSize2(sz1);
+				mItemsInfo[i].item->_setTextSize2(sz1);
 			}
 
 			if (!mItemsInfo.empty())
@@ -277,27 +272,19 @@ namespace MyGUI
 		frameAdvise(true);
 	}
 
-	void MenuControl::setItemNameAt(size_t _index, const UString& _name)
+	const UString& MenuControl::getItemCaptionAt(size_t _index)
+	{
+		MYGUI_ASSERT_RANGE(_index, mItemsInfo.size(), "MenuControl::getItemNameAt");
+		return mItemsInfo[_index].item->getCaption();
+	}
+
+	void MenuControl::setItemCaptionAt(size_t _index, const UString& _caption)
 	{
 		MYGUI_ASSERT_RANGE(_index, mItemsInfo.size(), "MenuControl::setItemNameAt");
 
-		mItemsInfo[_index].name = _name;
-		MenuItem* item = mItemsInfo[_index].item;
-		item->_setItemName(_name);
+		mItemsInfo[_index].item->setCaption(_caption);
 
 		frameAdvise(true);
-	}
-
-	void MenuControl::setItemIdAt(size_t _index, const std::string& _id)
-	{
-		MYGUI_ASSERT_RANGE(_index, mItemsInfo.size(), "MenuControl::setItemIdAt");
-		mItemsInfo[_index].id = _id;
-	}
-
-	const std::string& MenuControl::getItemIdAt(size_t _index)
-	{
-		MYGUI_ASSERT_RANGE(_index, mItemsInfo.size(), "MenuControl::getItemIdAt");
-		return mItemsInfo[_index].id;
 	}
 
 	void MenuControl::_notifyDeleteItem(MenuItem* _item)
@@ -321,7 +308,7 @@ namespace MyGUI
 		mItemsInfo[index].submenu = nullptr;
 	}
 
-	void MenuControl::_notifyUpdateName(MenuItem* _item)
+	void MenuControl::_notifyUpdateCaption(MenuItem* _item)
 	{
 		frameAdvise(true);
 	}
@@ -350,7 +337,7 @@ namespace MyGUI
 		}
 
 		info.item->setImageName(getIconIndexByType(_type ));
-		info.item->_setItemName(info.name);
+		info.item->_updateCaption();
 
 		frameAdvise(true);
 	}
@@ -363,7 +350,7 @@ namespace MyGUI
 		info.item->changeWidgetSkin(_skinName);
 		mChangeChildSkin = false;
 
-		info.item->_setItemName(info.name);
+		info.item->_updateCaption();
 
 		frameAdvise(true);
 	}
@@ -561,7 +548,7 @@ namespace MyGUI
 		frameAdvise(true);
 	}
 
-	void MenuControl::_wrapItem(MenuItem* _item, size_t _index, const UString& _name, MenuItemType _type, const std::string& _id, Any _data)
+	void MenuControl::_wrapItem(MenuItem* _item, size_t _index, MenuItemType _type, Any _data)
 	{
 		_item->setAlign(mVerticalAlignment ? Align::Top | Align::HStretch : Align::Default);
 		_item->eventRootKeyChangeFocus += newDelegate(this, &MenuControl::notifyRootKeyChangeFocus);
@@ -572,7 +559,7 @@ namespace MyGUI
 
 		MenuControl* submenu = nullptr;
 
-		ItemInfo info = ItemInfo(_item, _name, _type, submenu, _id, _data);
+		ItemInfo info = ItemInfo(_item, _type, submenu, _data);
 
 		mItemsInfo.insert(mItemsInfo.begin() + _index, info);
 
@@ -583,7 +570,7 @@ namespace MyGUI
 		}
 
 		// его сет капшен, обновит размер
-		_item->_setItemName(_name);
+		_item->_updateCaption();
 
 		frameAdvise(true);
 	}
@@ -649,16 +636,6 @@ namespace MyGUI
 		return controller;
 	}
 
-	MenuItem* MenuControl::insertItem(MenuItem* _to, const UString& _name, MenuItemType _type, const std::string& _id, Any _data)
-	{
-		return insertItemAt(getItemIndex(_to), _name, _type, _id, _data);
-	}
-
-	MenuItem* MenuControl::addItem(const UString& _name, MenuItemType _type, const std::string& _id, Any _data)
-	{
-		return insertItemAt(ITEM_NONE, _name, _type, _id, _data);
-	}
-
 	void MenuControl::removeItem(MenuItem* _item)
 	{
 		removeItemAt(getItemIndex(_item));
@@ -678,63 +655,6 @@ namespace MyGUI
 				return pos;
 		}
 		MYGUI_EXCEPT("item (" << _item << ") not found, source 'MenuControl::getItemIndex'");
-	}
-
-	MenuItem* MenuControl::findItemWith(const UString& _name)
-	{
-		for (size_t pos = 0; pos < mItemsInfo.size(); pos++)
-		{
-			if (mItemsInfo[pos].name == _name)
-				return mItemsInfo[pos].item;
-		}
-		return nullptr;
-	}
-
-	MenuItem* MenuControl::getItemById(const std::string& _id)
-	{
-		for (size_t index = 0; index < mItemsInfo.size(); index++)
-		{
-			if (mItemsInfo[index].id == _id)
-				return mItemsInfo[index].item;
-		}
-		MYGUI_EXCEPT("item id (" << _id << ") not found, source 'MenuControl::getItemById'");
-	}
-
-	size_t MenuControl::getItemIndexById(const std::string& _id)
-	{
-		for (size_t index = 0; index < mItemsInfo.size(); index++)
-		{
-			if (mItemsInfo[index].id == _id)
-				return index;
-		}
-		MYGUI_EXCEPT("item id (" << _id << ") not found, source 'MenuControl::getItemById'");
-	}
-
-	MenuItem* MenuControl::findItemById(const std::string& _id, bool _recursive)
-	{
-		for (size_t index = 0; index < mItemsInfo.size(); index++)
-		{
-			if (mItemsInfo[index].id == _id)
-				return mItemsInfo[index].item;
-
-			if (_recursive && mItemsInfo[index].submenu != nullptr)
-			{
-				MenuItem* find = mItemsInfo[index].submenu->findItemById(_id, _recursive);
-				if (find != nullptr)
-					return find;
-			}
-		}
-		return nullptr;
-	}
-
-	size_t MenuControl::findItemIndexWith(const UString& _name)
-	{
-		for (size_t index = 0; index < mItemsInfo.size(); index++)
-		{
-			if (mItemsInfo[index].name == _name)
-				return index;
-		}
-		return ITEM_NONE;
 	}
 
 	size_t MenuControl::findItemIndex(MenuItem* _item)
@@ -767,24 +687,14 @@ namespace MyGUI
 		clearItemDataAt(getItemIndex(_item));
 	}
 
-	void MenuControl::setItemId(MenuItem* _item, const std::string& _id)
+	void MenuControl::setItemCaption(MenuItem* _item, const UString& _caption)
 	{
-		setItemIdAt(getItemIndex(_item), _id);
+		setItemCaptionAt(getItemIndex(_item), _caption);
 	}
 
-	const std::string& MenuControl::getItemId(MenuItem* _item)
+	const UString& MenuControl::getItemCaption(MenuItem* _item)
 	{
-		return getItemIdAt(getItemIndex(_item));
-	}
-
-	void MenuControl::setItemName(MenuItem* _item, const UString& _name)
-	{
-		setItemNameAt(getItemIndex(_item), _name);
-	}
-
-	const UString& MenuControl::getItemName(MenuItem* _item)
-	{
-		return getItemNameAt(getItemIndex(_item));
+		return getItemCaptionAt(getItemIndex(_item));
 	}
 
 	void MenuControl::setItemChildVisible(MenuItem* _item, bool _visible)
@@ -882,16 +792,6 @@ namespace MyGUI
 	Widget* MenuControl::_getItemAt(size_t _index)
 	{
 		return getItemAt(_index);
-	}
-
-	void MenuControl::_setItemNameAt(size_t _index, const UString& _name)
-	{
-		setItemNameAt(_index, _name);
-	}
-
-	const UString& MenuControl::_getItemNameAt(size_t _index)
-	{
-		return getItemNameAt(_index);
 	}
 
 	void MenuControl::_setItemSelected(IItem* _item)
