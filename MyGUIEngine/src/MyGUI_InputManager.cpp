@@ -488,7 +488,8 @@ namespace MyGUI
 
 		if (_widget == mWidgetKeyFocus)
 		{
-			resetKeyFocusWidget();
+			//resetKeyFocusWidget(); // FIXME: ad-hoc to fix dead loop stack overflow bug
+			mWidgetKeyFocus = nullptr;
 		}
 
 		// ручками сбрасываем, чтобы не менять фокусы
