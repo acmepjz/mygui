@@ -45,8 +45,7 @@ namespace MyGUI
 				type(_type),
 				submenu(_submenu),
 				id(_id),
-				data(_data),
-				width(0)
+				data(_data)
 			{
 			}
 
@@ -62,8 +61,6 @@ namespace MyGUI
 			std::string id;
 			/** User data */
 			Any data;
-			/** Item width */
-			int width;
 		};
 
 		typedef std::vector<ItemInfo> VectorMenuItemInfo;

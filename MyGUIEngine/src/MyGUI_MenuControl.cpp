@@ -160,48 +160,88 @@ namespace MyGUI
 
 	void MenuControl::update()
 	{
-		for (VectorMenuItemInfo::iterator iter = mItemsInfo.begin(); iter != mItemsInfo.end(); ++iter)
-		{
-			if (iter->width < 0) {
-				MenuItem* _item = iter->item;
-				ISubWidgetText* text = _item->getSubWidgetText();
-				int width = text ? (text->getTextSize().width + _item->getSize().width - text->getWidth()) : 0;
-				if (width < 0) width = 0;
-				iter->width = width;
-			}
-		}
-
 		IntSize size;
 
 		if (mVerticalAlignment)
 		{
-			for (VectorMenuItemInfo::iterator iter = mItemsInfo.begin(); iter != mItemsInfo.end(); ++iter)
-			{
-				IntSize contentSize = iter->item->_getContentSize();
-				iter->item->setCoord(0, size.height, _getClientWidget()->getWidth(), contentSize.height);
-				size.height += contentSize.height + mDistanceButton;
+			std::vector<IntSize> sz1m;
+			IntSize sz2m;
+			std::vector<int> heights;
 
-				if (contentSize.width > size.width)
-					size.width = contentSize.width;
+			// calculate size for each item
+			for (size_t i = 0; i < mItemsInfo.size(); i++)
+			{
+				std::vector<IntSize> sz1;
+				IntSize sz2;
+
+				mItemsInfo[i].item->getTextSize2(sz1, sz2);
+
+				int height = sz2.height;
+				for (size_t j = 0; j < sz1.size(); j++) {
+					if (height < sz1[j].height) height = sz1[j].height;
+				}
+				heights.push_back(height);
+
+				while (sz1m.size() < sz1.size()) sz1m.push_back(IntSize());
+				for (size_t j = 0; j < sz1.size(); j++) {
+					if (sz1m[j].width < sz1[j].width) sz1m[j].width = sz1[j].width;
+				}
+				if (sz2m.width < sz2.width) sz2m.width = sz2.width;
 			}
+
+			// calculate width
+			size.width = sz2m.width;
+			for (size_t j = 0; j < sz1m.size(); j++) size.width += sz1m[j].width;
+
+			// resize each item
+			for (size_t i = 0; i < mItemsInfo.size(); i++)
+			{
+				const int height = heights[i];
+
+				mItemsInfo[i].item->setCoord(0, size.height, _getClientWidget()->getWidth(), height);
+				size.height += height + mDistanceButton;
+
+				mItemsInfo[i].item->setTextSize2(sz1m);
+			}
+
 			if (!mItemsInfo.empty())
 				size.height -= mDistanceButton;
 		}
 		else
 		{
-			int maxHeight = 0;
-			for (VectorMenuItemInfo::iterator iter = mItemsInfo.begin(); iter != mItemsInfo.end(); ++iter)
+			std::vector<std::vector<IntSize> > sz1m;
+			std::vector<IntSize> sz2m;
+
+			// calculate size for each item
+			for (size_t i = 0; i < mItemsInfo.size(); i++)
 			{
-				IntSize contentSize = iter->item->_getContentSize();
-				if (maxHeight < contentSize.height)
-					maxHeight = contentSize.height;
+				sz1m.push_back(std::vector<IntSize>());
+				sz2m.push_back(IntSize());
+
+				std::vector<IntSize> &sz1 = sz1m.back();
+				IntSize &sz2 = sz2m.back();
+
+				mItemsInfo[i].item->getTextSize2(sz1, sz2);
+
+				if (size.height < sz2.height) size.height = sz2.height;
+				for (size_t j = 0; j < sz1.size(); j++) {
+					if (size.height < sz1[j].height) size.height = sz1[j].height;
+				}
 			}
 
-			for (VectorMenuItemInfo::iterator iter = mItemsInfo.begin(); iter != mItemsInfo.end(); ++iter)
+			// resize each item
+			for (size_t i = 0; i < mItemsInfo.size(); i++)
 			{
-				IntSize contentSize = iter->item->_getContentSize();
-				iter->item->setCoord(size.width, 0, contentSize.width, maxHeight);
-				size.width += contentSize.width + mDistanceButton;
+				std::vector<IntSize> &sz1 = sz1m[i];
+				const IntSize &sz2 = sz2m[i];
+
+				int width = sz2.width;
+				for (size_t j = 0; j < sz1.size(); j++) width += sz1[j].width;
+
+				mItemsInfo[i].item->setCoord(size.width, 0, width, size.height);
+				size.width += width + mDistanceButton;
+
+				mItemsInfo[i].item->setTextSize2(sz1);
 			}
 
 			if (!mItemsInfo.empty())
@@ -243,7 +283,7 @@ namespace MyGUI
 
 		mItemsInfo[_index].name = _name;
 		MenuItem* item = mItemsInfo[_index].item;
-		item->setCaption(_name);
+		item->_setItemName(_name);
 
 		frameAdvise(true);
 	}
@@ -283,10 +323,6 @@ namespace MyGUI
 
 	void MenuControl::_notifyUpdateName(MenuItem* _item)
 	{
-		size_t index = getItemIndex(_item);
-		mItemsInfo[index].name = _item->getCaption();
-
-		mItemsInfo[index].width = -1;
 		frameAdvise(true);
 	}
 
@@ -314,7 +350,7 @@ namespace MyGUI
 		}
 
 		info.item->setImageName(getIconIndexByType(_type ));
-		info.item->setCaption(info.name);
+		info.item->_setItemName(info.name);
 
 		frameAdvise(true);
 	}
@@ -327,7 +363,7 @@ namespace MyGUI
 		info.item->changeWidgetSkin(_skinName);
 		mChangeChildSkin = false;
 
-		info.item->setCaption(info.name);
+		info.item->_setItemName(info.name);
 
 		frameAdvise(true);
 	}
@@ -547,7 +583,7 @@ namespace MyGUI
 		}
 
 		// его сет капшен, обновит размер
-		_item->setCaption(_name);
+		_item->_setItemName(_name);
 
 		frameAdvise(true);
 	}

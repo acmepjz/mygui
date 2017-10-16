@@ -28,9 +28,6 @@ namespace MyGUI
 	public:
 		MenuItem();
 
-		/** @copydoc TextBox::setCaption(const UString& _value) */
-		virtual void setCaption(const UString& _value);
-
 		/** @copydoc TextBox::setFontName(const std::string& _value) */
 		virtual void setFontName(const std::string& _value);
 
@@ -41,6 +38,8 @@ namespace MyGUI
 		void setItemName(const UString& _value);
 		//! Get item name
 		const UString& getItemName();
+
+		void _setItemName(const UString& _value);
 
 		//! Replace an item name
 		void setItemData(Any _value);
@@ -92,7 +91,9 @@ namespace MyGUI
 
 		/*internal:*/
 		virtual IItemContainer* _getItemContainer();
-		IntSize _getContentSize();
+
+		void getTextSize2(std::vector<IntSize>& _size, IntSize& _size2);
+		void setTextSize2(const std::vector<IntSize>& _size);
 
 	protected:
 		virtual void initialiseOverride();
@@ -110,6 +111,9 @@ namespace MyGUI
 		IntSize mMinSize;
 		Widget* mCheck;
 		bool mCheckValue;
+
+		std::string mTextBoxSkin;
+		VectorWidgetPtr mTextBox;
 	};
 
 } // namespace MyGUI
