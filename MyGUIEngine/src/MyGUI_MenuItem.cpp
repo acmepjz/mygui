@@ -145,6 +145,7 @@ namespace MyGUI
 			} else {
 				_size.push_back(IntSize());
 			}
+			_size[i].width += 4; // FIXME: ad-hoc add some horizontal space
 		}
 	}
 

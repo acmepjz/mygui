@@ -160,16 +160,20 @@ namespace MyGUI
 		if (mVerticalAlignment)
 		{
 			std::vector<IntSize> sz1m;
-			IntSize sz2m;
+			std::vector<IntSize> sz2s;
+			std::vector<int> counts;
 			std::vector<int> heights;
 
 			// calculate size for each item
 			for (size_t i = 0; i < mItemsInfo.size(); i++)
 			{
 				std::vector<IntSize> sz1;
-				IntSize sz2;
+				sz2s.push_back(IntSize());
+				IntSize &sz2 = sz2s.back();
 
 				mItemsInfo[i].item->_getTextSize2(sz1, sz2);
+
+				counts.push_back(sz1.size());
 
 				int height = sz2.height;
 				for (size_t j = 0; j < sz1.size(); j++) {
@@ -181,11 +185,20 @@ namespace MyGUI
 				for (size_t j = 0; j < sz1.size(); j++) {
 					if (sz1m[j].width < sz1[j].width) sz1m[j].width = sz1[j].width;
 				}
-				if (sz2m.width < sz2.width) sz2m.width = sz2.width;
+			}
+
+			const int maxCount = sz1m.size();
+
+			// calculate the additional width
+			for (size_t i = 0; i < mItemsInfo.size(); i++) {
+				int w = sz2s[i].width;
+				for (int j = counts[i]; j < maxCount; j++) {
+					w -= sz1m[j].width;
+				}
+				if (size.width < w) size.width = w;
 			}
 
 			// calculate width
-			size.width = sz2m.width;
 			for (size_t j = 0; j < sz1m.size(); j++) size.width += sz1m[j].width;
 
 			// resize each item
