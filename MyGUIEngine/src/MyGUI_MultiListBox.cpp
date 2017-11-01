@@ -547,6 +547,29 @@ namespace MyGUI
 		return getSubItemNameAt(0, _index);
 	}
 
+	void MultiListBox::beginToItemAt(size_t _index) {
+		MYGUI_ASSERT_RANGE(_index, getItemCount(), "MultiListBox::beginToItemAt");
+		_beginToItemAt(BiIndexBase::convertToBack(_index));
+	}
+
+	void MultiListBox::beginToItemFirst() {
+		if (getItemCount()) _beginToItemAt(0); // ???
+	}
+
+	void MultiListBox::beginToItemLast() {
+		size_t count = getItemCount();
+		if (count) _beginToItemAt(count - 1); // ???
+	}
+
+	void MultiListBox::beginToItemSelected() {
+		size_t selected = getIndexSelected();
+		if (selected != ITEM_NONE) beginToItemAt(selected);
+	}
+
+	void MultiListBox::_beginToItemAt(size_t _index) {
+		if (!mVectorColumnInfo.empty()) mVectorColumnInfo.back().list->beginToItemAt(_index);
+	}
+
 	size_t MultiListBox::getIndexSelected() const
 	{
 		return mItemSelected;

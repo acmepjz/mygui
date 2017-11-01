@@ -202,6 +202,25 @@ namespace MyGUI
 		//! Get item name from specified position
 		const UString& getItemNameAt(size_t _index);
 
+		//------------------------------------------------------------------------------//
+		// манипуляции выдимостью
+
+		/** @name Item Visibility Methods
+		Methods used to determine and manipulate item visibility.
+		*/
+		//@{
+		//! Move all elements so specified becomes visible
+		void beginToItemAt(size_t _index);
+
+		//! Move all elements so first becomes visible
+		void beginToItemFirst();
+
+		//! Move all elements so last becomes visible
+		void beginToItemLast();
+
+		//! Move all elements so selected becomes visible
+		void beginToItemSelected();
+		//@}
 
 		//------------------------------------------------------------------------------//
 		// манипуляции выделениями
@@ -382,6 +401,8 @@ namespace MyGUI
 		int getColumnWidth(size_t _index, int _freeSpace, size_t _countStars, size_t _lastIndexStar, int _starWidth) const;
 		bool getUpdateByResize();
 		int updateWidthColumns(size_t& _countStars, size_t& _lastIndexStar);
+
+		void _beginToItemAt(size_t _index);
 
 	private:
 		int mHeightButton;
