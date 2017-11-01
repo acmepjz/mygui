@@ -94,6 +94,8 @@ namespace MyGUI
 		void addWidgetModal(Widget* _widget);
 		/** Remove modal widget */
 		void removeWidgetModal(Widget* _widget);
+		/** Get the topmost modal widget */
+		Widget* getWidgetModal();
 
 		/** Return true if any modal widget exist */
 		bool isModalAny() const;

@@ -538,6 +538,11 @@ namespace MyGUI
 		}
 	}
 
+	Widget* InputManager::getWidgetModal()
+	{
+		return mVectorModalRootWidget.empty() ? nullptr : mVectorModalRootWidget.back();
+	}
+
 	void InputManager::storeKey(KeyCode _key, Char _text)
 	{
 		mHoldKey = KeyCode::None;
